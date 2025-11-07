@@ -3,7 +3,7 @@ import { Flashcard, ReviewHistory, ReviewRating, SrsData, ChatMessage, DailyLess
 import { getCardId } from "./srsService";
 
 export async function generateLesson(topic: string): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
   const prompt = `
     You are a German language teacher for absolute beginners.
