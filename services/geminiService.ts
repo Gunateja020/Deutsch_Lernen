@@ -79,7 +79,7 @@ export async function generatePronunciation(word: string, lang: string): Promise
 
   // Choose voice name per language. Replace with available voices if these don't work:
   let voiceName = "Kore"; // German (female)
-  if (lang === "en") voiceName = "en-US-Neural2-J"; // English (male), or try "en-US-Standard-B", etc.
+  if (lang === "en") voiceName = 'en-US-Standard-B'; // or 'en-US-Neural2-J', etc.
 
   const prompt = `Pronounce the ${lang === "en" ? "English" : "German"} word: ${word}`;
 
@@ -101,7 +101,7 @@ export async function generatePronunciation(word: string, lang: string): Promise
     return base64Audio;
   } catch (error) {
     console.error("Error generating pronunciation:", error);
-    return;
+    throw new Error("Failed to generate audio pronunciation. Please try again later.");
   }
 }
 
