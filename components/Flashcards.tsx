@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Flashcard, SrsData, ReviewRating } from '../types';
 import { SpeakerIcon } from '../constants';
-import { generatePronunciation } from '../services/geminiService';
 
 interface FlashcardsProps {
   queue: Flashcard[];
@@ -14,13 +13,19 @@ type SessionStats = {
   [key in ReviewRating]: number;
 };
 
+// BROWSER-NATIVE TEXT-TO-SPEECH FOR UNLIMITED USAGE
+function browserSpeak(text: string, lang: string) {
+  const utter = new window.SpeechSynthesisUtterance(text);
+  utter.lang = lang; // 'de-DE' for German, 'en-US' for English
+  window.speechSynthesis.speak(utter);
+}
+
 const Flashcards: React.FC<FlashcardsProps> = ({ queue, onCardRated, onBack, isFreePractice }) => {
   const [reviewQueue, setReviewQueue] = useState<Flashcard[]>(queue);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnswerShown, setIsAnswerShown] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [sessionStats, setSessionStats] = useState<SessionStats>({ again: 0, hard: 0, good: 0, easy: 0 });
-  const [audioLoading, setAudioLoading] = useState(false);
 
   const currentCard = useMemo(() => {
     if (reviewQueue.length > 0 && currentIndex < reviewQueue.length) {
@@ -28,24 +33,6 @@ const Flashcards: React.FC<FlashcardsProps> = ({ queue, onCardRated, onBack, isF
     }
     return null;
   }, [reviewQueue, currentIndex]);
-
-  const playAudio = (base64: string | null) => {
-    if (base64) {
-      const audio = new window.Audio(`data:audio/mp3;base64,${base64}`);
-      audio.play();
-    }
-  };
-
-  const handlePronounce = async (text: string, lang: string) => {
-    setAudioLoading(true);
-    try {
-      const base64 = await generatePronunciation(text, lang);
-      playAudio(base64);
-    } catch (e) {
-      // Optionally handle errors here
-    }
-    setAudioLoading(false);
-  };
 
   const handleShowAnswer = () => {
     setIsAnswerShown(true);
@@ -131,8 +118,7 @@ const Flashcards: React.FC<FlashcardsProps> = ({ queue, onCardRated, onBack, isF
           <p className="text-4xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
             {currentCard.german}
             <button
-              onClick={() => handlePronounce(currentCard.german, 'de')}
-              disabled={audioLoading}
+              onClick={() => browserSpeak(currentCard.german, 'de-DE')}
               className="ml-2 p-2"
               aria-label="Hear German pronunciation"
             >
@@ -145,8 +131,7 @@ const Flashcards: React.FC<FlashcardsProps> = ({ queue, onCardRated, onBack, isF
               <p className="text-3xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                 {currentCard.english}
                 <button
-                  onClick={() => handlePronounce(currentCard.english, 'en')}
-                  disabled={audioLoading}
+                  onClick={() => browserSpeak(currentCard.english, 'en-US')}
                   className="ml-2 p-2"
                   aria-label="Hear English pronunciation"
                 >
