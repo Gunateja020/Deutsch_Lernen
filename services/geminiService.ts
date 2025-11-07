@@ -74,26 +74,34 @@ Deutsch AI:`;
   }
 }
 
-export async function generatePronunciation(word: string): Promise<string | undefined> {
+export async function generatePronunciation(word: string, lang: string): Promise<string | undefined> {
   const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+
+  // Choose voice name per language. Replace with available voices if these don't work:
+  let voiceName = "Kore"; // German (female)
+  if (lang === "en") voiceName = "en-US-Neural2-J"; // English (male), or try "en-US-Standard-B", etc.
+
+  const prompt = `Pronounce the ${lang === "en" ? "English" : "German"} word: ${word}`;
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: `Pronounce the German word: ${word}` }] }],
+      contents: [{ parts: [{ text: prompt }] }],
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Kore' },
+            prebuiltVoiceConfig: { voiceName },
           },
         },
       },
     });
+
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
     return base64Audio;
   } catch (error) {
     console.error("Error generating pronunciation:", error);
-    throw new Error("Failed to generate audio pronunciation. Please try again later.");
+    return;
   }
 }
 
