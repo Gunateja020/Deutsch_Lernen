@@ -1,0 +1,5 @@
+{
+  "name": "Deutsch Lernen: German Language Coach",
+  "description": "An interactive web application to help beginners learn the German language from scratch. It features structured lessons, an AI-powered lesson generator, and practice sections including flashcards.",
+  "requestFramePermissions": []
+}
