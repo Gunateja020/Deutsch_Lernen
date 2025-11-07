@@ -49,7 +49,7 @@ export async function generateLesson(topic: string): Promise<string> {
 }
 
 export async function getTutorResponse(history: ChatMessage[]): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
   const userPrompt = history[history.length - 1].content;
   
@@ -75,7 +75,7 @@ Deutsch AI:`;
 }
 
 export async function generatePronunciation(word: string): Promise<string | undefined> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
@@ -98,7 +98,7 @@ export async function generatePronunciation(word: string): Promise<string | unde
 }
 
 export async function generatePracticeSession(allCards: Flashcard[], srsData: SrsData, reviewHistory: ReviewHistory): Promise<string[]> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey:import.meta.env.VITE_API_KEY });
 
   const reviewsByCard = reviewHistory.reduce((acc, log) => {
     if (!acc[log.cardId]) {
@@ -181,7 +181,7 @@ export async function generatePracticeSession(allCards: Flashcard[], srsData: Sr
 }
 
 export async function generateDailyLesson(previousTopics: string[], userLevel: string): Promise<DailyLesson> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey:import.meta.env.VITE_API_KEY });
 
   const prompt = `
     You are a German language teacher creating a "Lesson of the Day".
@@ -252,7 +252,7 @@ export async function generateDailyLesson(previousTopics: string[], userLevel: s
 }
 
 export async function generateDailyVocabulary(userLevel: string, existingWords: string[]): Promise<Flashcard[]> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey:import.meta.env.VITE_API_KEY });
 
   const prompt = `
     You are a German language teacher. Your task is to generate 5 to 10 new, useful vocabulary words for a student whose current proficiency level is ${userLevel} (CEFR).
@@ -317,7 +317,7 @@ export async function generateDailyVocabulary(userLevel: string, existingWords: 
 }
 
 export async function evaluateLevelProgression(srsData: SrsData, reviewHistory: ReviewHistory, currentLevel: string, challengeStats: ChallengeStats): Promise<{ promotionApproved: boolean; nextLevel: string; reasoning: string; }> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
     const CEFR_LEVELS = ["A1.1", "A1.2", "A2.1", "A2.2", "B1.1", "B1.2"];
     const currentLevelIndex = CEFR_LEVELS.indexOf(currentLevel);
     const nextLevel = currentLevelIndex < CEFR_LEVELS.length - 1 ? CEFR_LEVELS[currentLevelIndex + 1] : currentLevel;
@@ -395,7 +395,7 @@ export async function evaluateLevelProgression(srsData: SrsData, reviewHistory: 
 // --- Challenges ---
 
 export async function getConversationResponse(scenario: string, history: ConversationMessage[], userLevel: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
     const prompt = `You are an AI role-playing partner for a German language learner whose current level is ${userLevel}. You are playing a character in the following scenario: "${scenario}".
     Your response should be in character, in German. Tailor the complexity of your German vocabulary and sentence structure to the user's ${userLevel} level.
     After your German response, add a section on a new line like this: "--- HINT ---" where you can provide a gentle correction or a suggestion in English if the user made a mistake. If they did well, you can offer encouragement. The hint should also be appropriate for their level.
@@ -416,7 +416,7 @@ export async function getConversationResponse(scenario: string, history: Convers
 }
 
 export async function generateImageForDescription(): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
     try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image',
@@ -436,7 +436,7 @@ export async function generateImageForDescription(): Promise<string> {
 
 
 export async function evaluateImageDescription(description: string, userLevel: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
     const prompt = `You are a helpful and encouraging German language tutor. A student at the ${userLevel} level wrote the following description of an image in German:
     
     ---
@@ -462,7 +462,7 @@ export async function evaluateImageDescription(description: string, userLevel: s
 
 
 export async function continueStory(history: StoryPart[], userLevel: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
     
     let prompt: string;
     if (history.length === 0) {
