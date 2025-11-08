@@ -5,6 +5,14 @@ import { ChatMessage } from '../types';
 import { getTutorResponse } from '../services/geminiService';
 import { MarkdownRenderer } from './LessonRenderer';
 
+// BROWSER-NATIVE TEXT-TO-SPEECH
+function browserSpeak(text: string, lang: string) {
+  if (!text) return;
+  const utter = new window.SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  window.speechSynthesis.speak(utter);
+}
+
 const LearnSection: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userInput, setUserInput] = useState('');
@@ -63,7 +71,14 @@ const LearnSection: React.FC = () => {
                         </div>
                     )}
                     <div className={`p-4 rounded-lg max-w-lg ${msg.sender === 'ai' ? 'bg-white dark:bg-gray-800 shadow-md' : 'bg-blue-600 text-white'}`}>
-                        {msg.sender === 'ai' ? <MarkdownRenderer content={msg.content} /> : <p>{msg.content}</p>}
+                      {msg.sender === 'ai' ? (
+                        <div className="flex items-center gap-2">
+                          <MarkdownRenderer content={msg.content} />
+                          <button onClick={() => browserSpeak(msg.content, 'de-DE')}> </button>
+                        </div>
+                      ) : (
+                        <p>{msg.content}</p>
+                      )}
                     </div>
                      {msg.sender === 'user' && (
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white">
