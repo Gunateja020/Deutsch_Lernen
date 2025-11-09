@@ -127,9 +127,9 @@ const Flashcards: React.FC<FlashcardsProps> = ({ queue, onCardRated, onBack, isF
           <p className="text-4xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
             {frontText}
             <button
-              onClick={() => browserSpeak(frontText, isReverse ? 'en-US' : 'de-DE')}
+              onClick={() => browserSpeak(frontText, cardIsReversed ? 'en-US' : 'de-DE')}
               className="ml-2 p-2"
-              aria-label={`Hear ${isReverse ? 'English' : 'German'} pronunciation`}
+              aria-label={`Hear ${cardIsReversed ? 'English' : 'German'} pronunciation`}
             >
               <SpeakerIcon />
             </button>
@@ -140,9 +140,9 @@ const Flashcards: React.FC<FlashcardsProps> = ({ queue, onCardRated, onBack, isF
               <p className="text-3xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                 {backText}
                 <button
-                  onClick={() => browserSpeak(backText, isReverse ? 'de-DE' : 'en-US')}
+                  onClick={() => browserSpeak(backText, cardIsReversed ? 'de-DE' : 'en-US')}
                   className="ml-2 p-2"
-                  aria-label={`Hear ${isReverse ? 'German' : 'English'} pronunciation`}
+                  aria-label={`Hear ${cardIsReversed ? 'German' : 'English'} pronunciation`}
                 >
                   <SpeakerIcon />
                 </button>
