@@ -1,100 +1,68 @@
-import React, { useState, useRef } from 'react';
-import { generatePronunciation } from '../services/geminiService';
-import { SpeakerIcon, SpinnerIcon } from '../constants';
+import React from 'react';
+import { SpeakerIcon } from '../constants';
 
-// --- Audio Helper Functions ---
-function decode(base64: string): Uint8Array {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+// BROWSER-NATIVE TEXT-TO-SPEECH FOR UNLIMITED USAGE
+function browserSpeak(text: string, lang: string) {
+  if (!text) return;
+  // Stop any previous speech
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
   }
-  return bytes;
-}
-
-async function decodeAudioData(
-  data: Uint8Array,
-  ctx: AudioContext,
-  sampleRate: number,
-  numChannels: number,
-): Promise<AudioBuffer> {
-  const dataInt16 = new Int16Array(data.buffer);
-  const frameCount = dataInt16.length / numChannels;
-  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
-
-  for (let channel = 0; channel < numChannels; channel++) {
-    const channelData = buffer.getChannelData(channel);
-    for (let i = 0; i < frameCount; i++) {
-      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
-    }
-  }
-  return buffer;
+  const utter = new window.SpeechSynthesisUtterance(text);
+  utter.lang = lang; // 'de-DE' for German, 'en-US' for English
+  window.speechSynthesis.speak(utter);
 }
 
 
 const GermanWordWithPronunciation: React.FC<{ word: string }> = ({ word }) => {
-    const [isSpeaking, setIsSpeaking] = useState(false);
-    const audioContextRef = useRef<AudioContext | null>(null);
 
-    const handlePlayPronunciation = async (text: string) => {
-        if (isSpeaking) return;
-        setIsSpeaking(true);
-        try {
-            const base64Audio = await generatePronunciation(text);
-            if (base64Audio) {
-                if (!audioContextRef.current) {
-                    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-                }
-                const audioContext = audioContextRef.current;
-                const audioBuffer = await decodeAudioData(decode(base64Audio), audioContext, 24000, 1);
-                const source = audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(audioContext.destination);
-                source.start();
-                source.onended = () => setIsSpeaking(false);
-            } else {
-               setIsSpeaking(false);
-            }
-        } catch (error) {
-            console.error("Error playing pronunciation:", error);
-            alert("Could not play audio. Please try again.");
-            setIsSpeaking(false);
-        }
+    const handleClick = () => {
+        // Native browser speak does not require async/await or a loading state
+        // We assume the lesson words are German
+        browserSpeak(word, 'de-DE'); 
     };
 
     return (
-        <span className="inline-flex items-center gap-1">
-            <strong className="text-blue-600 dark:text-blue-400">{word}</strong>
+        <span className="inline-flex items-center group/word whitespace-nowrap">
+            <strong className="mr-1">{word}</strong>
             <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    handlePlayPronunciation(word);
-                }}
-                disabled={isSpeaking}
-                className="p-1 rounded-full text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-blue-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-                aria-label={`Listen to ${word}`}
+                onClick={handleClick}
+                className="text-blue-500 dark:text-blue-400 opacity-0 group-hover/word:opacity-100 transition-opacity"
+                aria-label={`Pronounce ${word}`}
             >
-                {isSpeaking ? <SpinnerIcon /> : <SpeakerIcon />}
+                <SpeakerIcon className="h-4 w-4" /> 
             </button>
         </span>
     );
 };
 
-export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
-    const parseInline = (text: string) => {
-        const parts = text.split(/(\*\*.*?\*\*)/g).filter(part => part);
+// --- Markdown Rendering Logic ---
+
+const parseInline = (text: string) => {
+    // Replace German words in **bold** with the interactive component
+    let content: (string | React.ReactNode)[] = [text];
+
+    // 1. Handle **Bold German Words**
+    content = content.flatMap(segment => {
+        if (typeof segment !== 'string') return segment;
+        const parts = segment.split(/(\*\*[\w\s]+\*\*)/g);
         return parts.map((part, index) => {
             if (part.startsWith('**') && part.endsWith('**')) {
-                const word = part.slice(2, -2);
-                return <GermanWordWithPronunciation key={`${word}-${index}`} word={word} />;
+                const word = part.substring(2, part.length - 2).trim();
+                return <GermanWordWithPronunciation key={`word-${index}`} word={word} />;
             }
-            return <span key={index}>{part}</span>;
+            return part;
         });
-    };
+    });
 
-    const lines = content.split(/\r\n|\n|\r/);
-    const renderableContent = [];
+    return <>{content}</>;
+};
+
+export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+    const lines = content.split('\n').filter(line => !line.startsWith('### Answers') && !line.startsWith('### Quick Quiz'));
+    
+    // Group lines into blocks of content
+    const renderableContent: { type: 'ul' | 'line', content?: string, items?: string[] }[] = [];
     let listItems: string[] = [];
 
     lines.forEach(line => {
@@ -118,13 +86,13 @@ export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => 
                 if (block.type === 'ul') {
                     return (
                         <ul key={index} className="list-disc list-inside space-y-1">
-                            {block.items.map((item, i) => (
+                            {block.items!.map((item, i) => (
                                 <li key={i}>{parseInline(item.replace(/^\* \s*/, ''))}</li>
                             ))}
                         </ul>
                     );
                 } else {
-                    const line = block.content;
+                    const line = block.content!;
                     if (line.trim().startsWith('### ')) {
                         return <h3 key={index} className="text-xl font-semibold mt-4 mb-2">{parseInline(line.replace('### ', ''))}</h3>;
                     }
