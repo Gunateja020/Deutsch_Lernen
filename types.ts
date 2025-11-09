@@ -37,6 +37,7 @@ export interface Flashcard {
   german: string;
   english: string;
   originDeck?: string; // To track the source deck for SRS keys
+  isReversed?: boolean; //
 }
 
 export interface DailyLesson {
