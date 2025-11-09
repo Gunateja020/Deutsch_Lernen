@@ -133,7 +133,10 @@ const PracticeSection: React.FC<PracticeSectionProps> = ({ allDecks, srsData, re
         ...learningCards,
         ...dueCards,
         ...shuffleArray(newCards).slice(0, 20)
-    ]);
+    ]).map(card => ({
+        ...card,
+        isReversed: Math.random() < 0.5 // 50% chance to be reversed
+    }));
     startFlashcardPractice(practiceCards, false);
   };
   
