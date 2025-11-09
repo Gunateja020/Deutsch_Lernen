@@ -146,7 +146,13 @@ const PracticeSection: React.FC<PracticeSectionProps> = ({ allDecks, srsData, re
     try {
       const practiceCardIds = await generatePracticeSession(allCardsFlat, srsData, reviewHistory);
       const cardMap = new Map(allCardsFlat.map(card => [getCardId(card.originDeck!, card.german), card]));
-      const practiceCards = practiceCardIds.map(id => cardMap.get(id)).filter((c): c is Flashcard => c !== undefined);
+      const practiceCards = practiceCardIds
+        .map(id => cardMap.get(id))
+        .filter((c): c is Flashcard => c !== undefined)
+        .map(card => ({
+            ...card,
+            isReversed: Math.random() < 0.5 // 50% chance to be reversed
+        }));
 
       if (practiceCards.length === 0) {
         setGenerationError("The AI couldn't find any suitable cards for practice right now.");
