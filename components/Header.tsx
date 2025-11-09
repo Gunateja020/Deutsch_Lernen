@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView }) => {
         <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
           Deutsch Lernen
         </h1>
-        <nav className="flex space-x-2 bg-gray-200 dark:bg-gray-900 p-1 rounded-lg">
+        <nav className="flex flex-nowrap space-x-2 bg-gray-200 dark:bg-gray-900 p-1 rounded-lg overflow-x-auto min-w-0">
           <button
             onClick={() => setCurrentView('learn')}
             className={`px-4 py-2 rounded-md font-semibold transition-colors duration-300 ${currentView === 'learn' ? activeClasses : inactiveClasses}`}
