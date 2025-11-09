@@ -13,11 +13,13 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView }) => {
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      {/* UPDATE 1: flex-col on mobile, flex-row on md+ */}
+      <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
           Deutsch Lernen
         </h1>
-        <nav className="flex flex-nowrap space-x-2 bg-gray-200 dark:bg-gray-900 p-1 rounded-lg overflow-x-auto min-w-0">
+        {/* UPDATE 2: flex-wrap on mobile, w-full, gap-2 for wrapping */}
+        <nav className="flex flex-wrap w-full md:w-auto gap-2 bg-gray-200 dark:bg-gray-900 p-1 rounded-lg">
           <button
             onClick={() => setCurrentView('learn')}
             className={`px-4 py-2 rounded-md font-semibold transition-colors duration-300 ${currentView === 'learn' ? activeClasses : inactiveClasses}`}
@@ -31,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView }) => {
             Teachings
           </button>
           <button
-            onClick={() => setCurrentView('practice')}
+            onClick={() => setCurrentView('practice')}\
             className={`px-4 py-2 rounded-md font-semibold transition-colors duration-300 ${currentView === 'practice' ? activeClasses : inactiveClasses}`}
           >
             Practice
