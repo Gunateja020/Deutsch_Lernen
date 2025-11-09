@@ -32,8 +32,12 @@ const Flashcards: React.FC<FlashcardsProps> = ({ queue, onCardRated, onBack, isF
     () => reviewQueue.length === 0 ? null : reviewQueue[currentIndex],
     [reviewQueue, currentIndex]
   );
-  const frontText = isReverse ? currentCard?.english : currentCard?.german;
-  const backText = isReverse ? currentCard?.german : currentCard?.english;
+
+  // Check if the specific card has a reverse flag, otherwise use the session-wide prop
+  const cardIsReversed = currentCard?.isReversed !== undefined ? currentCard.isReversed : isReverse;
+
+  const frontText = cardIsReversed ? currentCard?.english : currentCard?.german;
+  const backText = cardIsReversed ? currentCard?.german : currentCard?.english;
 
   const handleShowAnswer = () => setIsAnswerShown(true);
 
