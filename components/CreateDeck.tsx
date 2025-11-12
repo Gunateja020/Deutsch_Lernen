@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Flashcard, FlashcardDeck } from '../types';
-
+import { PlusIcon } from '../constants';
 interface CreateDeckProps {
   onSaveDeck: (deck: FlashcardDeck) => void;
   onCancel: () => void;
@@ -88,8 +88,8 @@ const CreateDeck: React.FC<CreateDeckProps> = ({ onSaveDeck, onCancel, allWords 
                             className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
-                    <button type="submit" className="w-full sm:w-auto self-end bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 transition-colors">
-                        Add Word
+                    <button type="submit" disabled={!newGerman.trim() || !newEnglish.trim()} className="w-full sm:w-auto self-end bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 transition-colors">
+                      <PlusIcon className="h-5 w-5" />  Add Word
                     </button>
                 </form>
             </div>
