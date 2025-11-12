@@ -3,7 +3,7 @@ import { Flashcard, FlashcardDeck, SrsData, ReviewRating, ReviewHistory } from '
 import Flashcards from './Flashcards';
 import CreateDeck from './CreateDeck';
 import ImportDeck from './ImportDeck';
-import CardManagement from './CardManagement'; // <-- NEW IMPORT
+import CardManagement from './CardManagement';
 import { getCardId } from '../services/srsService';
 import { generatePracticeSession, generateDailyVocabulary } from '../services/geminiService';
 import { SpinnerIcon } from '../constants';
@@ -19,8 +19,8 @@ interface PracticeSectionProps {
     onCardRated: (card: Flashcard, rating: ReviewRating) => void;
     userLevel: string;
     allWords: Set<string>;
-    onEditCard: (deckName: string, oldGerman: string) => void; 
-    onDeleteCard: (deckName: string, germanWord: string) => void;
+    onEditCard: (card: Flashcard) => void; 
+    onDeleteCard: (card: Flashcard) => void;
 }
 
 const shuffleArray = <T,>(array: T[]): T[] => {
