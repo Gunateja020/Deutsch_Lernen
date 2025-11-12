@@ -10,7 +10,8 @@ interface CardManagementProps {
 
 const CardManagement: React.FC<CardManagementProps> = ({ userDecks, dailyDecks, onEditCard, onDeleteCard }) => {
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mt-6">
+        // REMOVED 'mt-6' margin and ADDED 'pt-6 border-t border-gray-200 dark:border-gray-700' for a visual separator
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg pt-6 border-t border-gray-200 dark:border-gray-700">
             <h3 className="text-xl font-bold mb-4">Card Management</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
                 Manage cards from your custom-added or AI-generated decks. (Note: Default app decks cannot be edited).
