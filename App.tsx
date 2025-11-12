@@ -6,12 +6,13 @@ import Footer from './components/Footer';
 import ProgressSection from './components/StatisticsSection';
 import TeachingsSection from './components/TeachingsSection';
 import ChallengesSection from './components/ChallengesSection';
+import ManageCardsSection from './components/ManageCardsSection';
 import { FlashcardDeck, SrsData, ReviewHistory, ReviewLog, Flashcard, ReviewRating, UserProgressData, ChallengeStats } from './types';
 import { FLASHCARD_DECKS } from './constants';
 import { initializeSrsData, loadSrsData, saveSrsData, loadReviewHistory, saveReviewHistory, calculateNextReview, getCardId } from './services/srsService';
 
 
-type View = 'learn' | 'practice' | 'progress' | 'teachings' | 'challenges';
+type View = 'learn' | 'practice' | 'progress' | 'teachings' | 'challenges' | 'manage';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('practice');
@@ -111,6 +112,80 @@ const App: React.FC = () => {
     setReviewHistory(updatedHistory);
     saveReviewHistory(updatedHistory);
   };
+
+  const handleEditCard = (originalCard: Flashcard, newCard: Flashcard) => {
+    const deckSetter = originalCard.originDeck && (originalCard.originDeck.startsWith('Daily') || originalCard.originDeck.startsWith('AI')) ? setDailyDecks : setUserDecks;
+    const decks = originalCard.originDeck && (originalCard.originDeck.startsWith('Daily') || originalCard.originDeck.startsWith('AI')) ? dailyDecks : userDecks;
+    const localStorageKey = originalCard.originDeck && (originalCard.originDeck.startsWith('Daily') || originalCard.originDeck.startsWith('AI')) ? 'dailyDecks' : 'userDecks';
+
+    let cardFound = false;
+    
+    const updatedDecks = decks.map(deck => {
+        if (deck.name === originalCard.originDeck) {
+            const updatedCards = deck.cards.map(card => {
+                if (card.german === originalCard.german && card.english === originalCard.english) {
+                    cardFound = true;
+                    return newCard;
+                }
+                return card;
+            });
+            return { ...deck, cards: updatedCards };
+        }
+        return deck;
+    });
+
+    if (cardFound) {
+        deckSetter(updatedDecks);
+        localStorage.setItem(localStorageKey, JSON.stringify(updatedDecks));
+        alert('Card updated successfully!');
+    } else {
+        console.error("Could not find the card to edit. This should not happen.");
+    }
+  };
+
+  const handleDeleteCard = (cardToDelete: Flashcard) => {
+    if (!cardToDelete.originDeck) {
+        console.error("Cannot delete card without originDeck");
+        return;
+    }
+    
+    const deckSetter = cardToDelete.originDeck.startsWith('Daily') || cardToDelete.originDeck.startsWith('AI') ? setDailyDecks : setUserDecks;
+    const decks = cardToDelete.originDeck.startsWith('Daily') || cardToDelete.originDeck.startsWith('AI') ? dailyDecks : userDecks;
+    const localStorageKey = cardToDelete.originDeck.startsWith('Daily') || cardToDelete.originDeck.startsWith('AI') ? 'dailyDecks' : 'userDecks';
+
+    let cardFound = false;
+
+    const updatedDecks = decks.map(deck => {
+        if (deck.name === cardToDelete.originDeck) {
+            const originalLength = deck.cards.length;
+            const updatedCards = deck.cards.filter(card => 
+                card.german !== cardToDelete.german || card.english !== cardToDelete.english
+            );
+            if (updatedCards.length < originalLength) {
+                cardFound = true;
+            }
+            return { ...deck, cards: updatedCards };
+        }
+        return deck;
+    });
+    
+
+    if (cardFound) {
+        deckSetter(updatedDecks);
+        localStorage.setItem(localStorageKey, JSON.stringify(updatedDecks));
+        
+        // Also remove SRS data for the deleted card
+        const cardId = getCardId(cardToDelete.originDeck, cardToDelete.german);
+        // Create a new srsData object without the deleted cardId
+        const { [cardId]: _, ...restSrsData } = srsData;
+        setSrsData(restSrsData);
+        saveSrsData(restSrsData);
+        
+        alert('Card deleted successfully!');
+    } else {
+        console.error("Could not find the card to delete.");
+    }
+  };
   
   const handleImportData = (importedData: UserProgressData) => {
     const dataToImport: Required<UserProgressData> = {
@@ -181,6 +256,14 @@ const App: React.FC = () => {
                 onCardRated={handleCardRated}
                 userLevel={userLevel}
                 allWords={allWords}
+                onEditCard={handleEditCard}
+                onDeleteCard={handleDeleteCard}
+            />
+        )}
+        {currentView === 'manage' && (
+            <ManageCardsSection
+                userDecks={userDecks}
+                dailyDecks={dailyDecks}
                 onEditCard={handleEditCard}
                 onDeleteCard={handleDeleteCard}
             />
