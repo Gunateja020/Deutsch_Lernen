@@ -172,6 +172,8 @@ const App: React.FC = () => {
         {currentView === 'practice' && (
             <PracticeSection 
                 allDecks={allDecks}
+                userDecks={userDecks}
+                dailyDecks={dailyDecks}
                 srsData={srsData}
                 reviewHistory={reviewHistory}
                 onSaveDeck={handleSaveDeck}
@@ -179,6 +181,8 @@ const App: React.FC = () => {
                 onCardRated={handleCardRated}
                 userLevel={userLevel}
                 allWords={allWords}
+                onEditCard={handleEditCard}
+                onDeleteCard={handleDeleteCard}
             />
         )}
         {currentView === 'challenges' && <ChallengesSection userLevel={userLevel} onChallengeCompleted={handleChallengeCompleted} />}
