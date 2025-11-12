@@ -46,12 +46,11 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView }) => {
             Challenges
           </button>
           <button
-            viewName="manage"
-            currentView={currentView}
-            setCurrentView={setCurrentView}
-          >
-            Manage Cards
-          </button>
+            onClick={() => setCurrentView('manage')}
+            className={`px-4 py-2 rounded-md font-semibold transition-colors duration-300 ${currentView === 'manage' ? activeClasses : inactiveClasses}`}
+          >
+            Manage Cards
+          </button>
           <button
             onClick={() => setCurrentView('progress')}
             className={`px-4 py-2 rounded-md font-semibold transition-colors duration-300 ${currentView === 'progress' ? activeClasses : inactiveClasses}`}
